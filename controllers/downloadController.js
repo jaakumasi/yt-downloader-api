@@ -5,14 +5,12 @@ const { logger } = require('../shared/utils')
 
 const handleDownloadController = (req, res, next) => {
     const { ytVideoUrl } = req.body;
-
-    console.log(ytVideoUrl)
-
-
-    const randomID = Math.round(Math.random() * 1000000).toString().padStart(6, '0');
-    const videoPath = join(__dirname, '..', `videos/video-${randomID}.mp4`);
+    logger(ytVideoUrl)
 
     try {
+        const randomID = Math.round(Math.random() * 1000000).toString().padStart(6, '0');
+        const videoPath = join(__dirname, '..', `videos/video-${randomID}.mp4`);
+
         const writeStream = createWriteStream(videoPath);
         ytdl(ytVideoUrl).pipe(writeStream);
 
@@ -23,11 +21,11 @@ const handleDownloadController = (req, res, next) => {
             const readStream = createReadStream(videoPath);
             readStream.pipe(res);
 
-            readStream.on('finish', () => {
+            readStream.on('close', () => {
                 unlink(videoPath, (err) => {
                     if (err) logger(err.message);
                 });
-            })
+            });
         });
         writeStream.on('ready', () => logger('ready'))
         writeStream.on('error', (error) => logger(error.message));
