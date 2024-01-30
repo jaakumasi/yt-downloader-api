@@ -17,7 +17,12 @@ const handleDownloadController = (req, res, next) => {
         writeStream.on('finish', () => {
             logger('write complete! initiating download');
 
-            res.setHeader('Content-Type', 'video/mp4');
+            // res.setHeader('Content-Type', 'video/mp4');
+            res.set({
+                'Access-Control-Allow-Origin': 'https://yt-downloader-custom.vercel.app',
+                'Access-Control-Allow-Methods': 'GET, POST',
+                'Access-Control-Allow-Headers': 'Content-Type, Authorization'
+            });
             const readStream = createReadStream(videoPath);
             readStream.pipe(res);
 
